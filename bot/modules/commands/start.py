@@ -84,7 +84,6 @@ async def p_start(_, msg):
                f"**· 📊 当前状态** | {lv}\n" \
                f"**· 🍒 积分{sakura_b}** | {us}\n" \
                f"**· ®️ 注册状态** | {stat}\n" \
-               f"**· 🎫 总注册限制** | {all_user}\n" \
                f"**· 🎟️ 可注册席位** | {all_user - tem}\n"
         if not embyid:
             await asyncio.gather(deleteMessage(msg),
