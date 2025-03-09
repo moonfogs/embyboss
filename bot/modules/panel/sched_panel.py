@@ -43,7 +43,7 @@ action_dict = {
 
 # 字典，对应的操作函数的参数和id
 args_dict = {
-    "dayrank": {'hour': 18, 'minute': 30, 'id': 'day_ranks'},
+    "dayrank": {'hour': 23, 'minute': 30, 'id': 'day_ranks'},
     "weekrank": {'day_of_week': "sun", 'hour': 23, 'minute': 59, 'id': 'week_ranks'},
     "dayplayrank": {'hour': 23, 'minute': 0, 'id': 'user_day_plays'},
     "weekplayrank": {'day_of_week': "sun", 'hour': 23, 'minute': 0, 'id': 'user_week_plays'},
