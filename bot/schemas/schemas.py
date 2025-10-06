@@ -3,8 +3,10 @@ import os
 from pydantic import BaseModel, Field
 from typing import List, Optional, Union
 
-
 # 嵌套式的数据设计，规范数据 config.json
+
+MAX_INT_VALUE = 2147483647  # 2^31 - 1
+MIN_INT_VALUE = -2147483648  # -2^31
 
 class ExDate(BaseModel):
     mon: int = 30
@@ -33,6 +35,7 @@ class ExDate(BaseModel):
 
 class Open(BaseModel):
     stat: bool
+    open_us: int = 30
     all_user: int
     timing: int = 0
     tem: Optional[int] = 0
@@ -170,8 +173,18 @@ class Config(BaseModel):
     kk_gift_days: int = 30
     # 是否狙杀皮套人
     fuxx_pitao: bool = True
+    # 活跃检测天数，默认21天
+    activity_check_days: int = 21
+    # 封存账号天数，默认5天
+    freeze_days: int = 5
     # 白名单用户专属的emby线路
     emby_whitelist_line: Optional[str] = None
+    # 被拦截的user-agent模式列表
+    blocked_clients: Optional[List[str]] = None
+    # 是否在检测到可疑客户端时终止会话
+    client_filter_terminate_session: bool = True
+    # 是否在检测到可疑客户端时封禁用户
+    client_filter_block_user: bool = False
     moviepilot: MP = Field(default_factory=MP)
     auto_update: AutoUpdate = Field(default_factory=AutoUpdate)
     red_envelope: RedEnvelope = Field(default_factory=RedEnvelope)

@@ -1,6 +1,6 @@
 import pytz
 
-from bot import bot, _open, save_config, owner, admins, bot_name, ranks, schedall, group
+from bot import bot, _open, save_config, owner, admins, bot_name, ranks, schedall, group, config
 from bot.sql_helper.sql_code import sql_add_code
 from bot.sql_helper.sql_emby import sql_get_emby
 from cacheout import Cache
@@ -37,18 +37,18 @@ async def members_info(tg=None, name=None):
         name = data.name or '无账户信息'
         pwd2 = data.pwd2
         embyid = data.embyid
-        us = data.iv
+        iv = data.iv
         lv_dict = {'a': '白名单', 'b': '**正常**', 'c': '**已禁用**', 'd': '未注册'}  # , 'e': '**21天未活跃/无信息**'
         lv = lv_dict.get(data.lv, '未知')
         if lv == '白名单':
             ex = '+ ∞'
         elif data.name is not None and schedall.low_activity and not schedall.check_ex:
-            ex = '__若21天无观看将封禁__'
+            ex = f'__若{config.activity_check_days}天无观看将封禁__'
         elif data.name is not None and not schedall.low_activity and not schedall.check_ex:
             ex = ' __无需保号，放心食用__'
         else:
             ex = data.ex or '无账户信息'
-        return name, lv, ex, us, embyid, pwd2
+        return name, lv, ex, iv, embyid, pwd2
 
 
 async def open_check():

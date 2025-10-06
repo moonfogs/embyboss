@@ -37,12 +37,16 @@ async def server(_, call):
     if data.lv == 'b':
         line = f'{emby_line}'
     elif data.lv == 'a':
-        line += f'{emby_line}\n{emby_whitelist_line}'
+        line = f'{emby_line}'
+        if emby_whitelist_line:
+            line += f'\n{emby_whitelist_line}'
     else:
         line = ' - **无权查看**'
     try:
-        online = emby.get_current_playing_count()
-    except:
+        online = await emby.get_current_playing_count()
+        if online == -1:
+            online = 'Emby服务器断连 ·0'
+    except Exception:
         online = 'Emby服务器断连 ·0'
     text = f'**▎↓目前线路 & 用户密码：**`{pwd}`\n' \
            f'{line}\n\n' \

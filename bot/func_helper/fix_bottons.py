@@ -3,7 +3,7 @@ from pykeyboard import InlineKeyboard, InlineButton
 from pyrogram.types import InlineKeyboardMarkup
 from pyromod.helpers import ikb, array_chunk
 from bot import chanel, main_group, bot_name, extra_emby_libs, tz_id, tz_ad, tz_api, _open, sakura_b, \
-    schedall, auto_update, fuxx_pitao, kk_gift_days, moviepilot, red_envelope
+    schedall, auto_update, fuxx_pitao, moviepilot, red_envelope, config
 from bot.func_helper import nezha_res
 from bot.func_helper.emby import emby
 from bot.func_helper.utils import members_info
@@ -139,7 +139,7 @@ gm_ikb_content = ikb([[('⭕ 注册状态', 'open-menu'), ('🎟️ 注册/续�
 
 def open_menu_ikb(openstats, timingstats) -> InlineKeyboardMarkup:
     return ikb([[(f'{openstats} 自由注册', 'open_stat'), (f'{timingstats} 定时注册', 'open_timing')],
-                [('⭕ 注册限制', 'all_user_limit')], [('🌟 返回上一级', 'manage')]])
+                [('🤖注册账号天数', 'open_us'),('⭕ 注册限制', 'all_user_limit')], [('🌟 返回上一级', 'manage')]])
 
 
 back_free_ikb = ikb([[('🔙 返回上一级', 'open-menu')]])
@@ -346,7 +346,8 @@ def config_preparation() -> InlineKeyboardMarkup:
          [(f'{leave_ban} 退群封禁', 'leave_ban'), (f'{uplays} 观影奖励结算', 'set_uplays')],
          [(f'{auto_up} 自动更新bot', 'set_update'), (f'{mp_set} Moviepilot点播', 'set_mp')],
          [(f'{red_envelope_status} 红包', 'set_red_envelope_status'), (f'{allow_private} 专属红包', 'set_red_envelope_allow_private')],
-         [(f'设置赠送资格天数({kk_gift_days}天)', 'set_kk_gift_days')],
+         [(f'设置赠送资格天数({config.kk_gift_days}天)', 'set_kk_gift_days'), (f'设置活跃检测天数({config.activity_check_days}天)', 'set_activity_check_days')],
+         [(f'设置封存账号天数({config.freeze_days}天)', 'set_freeze_days')],
          [('🔙 返回', 'manage')]])
     return keyboard
 
@@ -376,12 +377,12 @@ async def cr_kk_ikb(uid, first):
     if data is None:
         text += f'**· 🆔 TG** ：[{first}](tg://user?id={uid}) [`{uid}`]\n数据库中没有此ID。ta 还没有私聊过我'
     else:
-        name, lv, ex, us, embyid, pwd2 = data
+        name, lv, ex, iv, embyid, pwd2 = data
         if name != '无账户信息':
             ban = "🌟 解除禁用" if lv == "**已禁用**" else '💢 禁用账户'
             keyboard = [[ban, f'user_ban-{uid}'], ['⚠️ 删除账户', f'closeemby-{uid}']]
             if len(extra_emby_libs) > 0:
-                success, rep = emby.user(embyid=embyid)
+                success, rep = await emby.user(emby_id=embyid)
                 if success:
                     try:
                         currentblock = rep["Policy"]["BlockedMediaFolders"]
@@ -392,11 +393,11 @@ async def cr_kk_ikb(uid, first):
                         set(currentblock)) else ['✔️', f'embyextralib_block-{uid}']
                     keyboard.append([f'{libs} 额外媒体库', embyextralib])
             try:
-                rst = await emby.emby_cust_commit(user_id=embyid, days=30)
+                rst = await emby.emby_cust_commit(emby_id=embyid, days=30)
                 last_time = rst[0][0]
                 toltime = rst[0][1]
                 text1 = f"**· 🔋 上次活动** | {last_time.split('.')[0]}\n" \
-                        f"**· 📅 过去30天** | {toltime} min"
+                        f"**· 📅 过去30天** | {toltime} 分钟"
             except (TypeError, IndexError, ValueError):
                 text1 = f"**· 📅 过去30天未有记录**"
         else:
@@ -404,7 +405,7 @@ async def cr_kk_ikb(uid, first):
         text += f"**· 🍉 TG&名称** | [{first}](tg://user?id={uid})\n" \
                 f"**· 🍒 识别のID** | `{uid}`\n" \
                 f"**· 🍓 当前状态** | {lv}\n" \
-                f"**· 🍥 持有{sakura_b}** | {us}\n" \
+                f"**· 🍥 持有{sakura_b}** | {iv}\n" \
                 f"**· 💠 账号名称** | {name}\n" \
                 f"**· 🚨 到期时间** | **{ex}**\n"
         text += text1
